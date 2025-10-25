@@ -10,6 +10,8 @@ import rateLimit from 'express-rate-limit'
 import lookupRouter from './routes/lookup.js'
 import apiRouter from './routes/api.js'
 import endpointsRouter from './routes/endpoints.js'
+// ADD THIS LINE - Import authRouter (or comment out the usage below if not needed)
+// import authRouter from './routes/auth.js'
 
 // Rate limiter for API and cache
 const globalLimiter = rateLimit({
@@ -32,11 +34,11 @@ app.use((req, res, next) => {
     globalLimiter(req, res, next)
 })
 app.use(session({
-  secret: process.env.EXPRESS_SESSION_SECRET,
+  secret: process.env.EXPRESS_SESSION_SECRET || 'fallback-secret-change-me', // Add fallback
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true, // set this to true on production
+    secure: process.env.NODE_ENV === 'production', // Only secure in production
   },
 }))
 
@@ -58,7 +60,8 @@ app.use((req, res, next) => {
 
 app.use('/api', apiRouter)
 app.use('/endpoints', endpointsRouter)
-app.use('/auth', authRouter)
+// REMOVE OR FIX THIS LINE - authRouter is not imported
+// app.use('/auth', authRouter)  // Comment this out if you don't have auth routes
 
 // Error handling middleware
 // Specific error handling middleware for different types of errors.
